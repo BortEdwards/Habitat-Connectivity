@@ -6,11 +6,11 @@
 library(raster)
 
 # Load existing habitat suitability raster layer
-habsuit <- raster("C:/Users/C836876692/Desktop/Omniscape Test/Normalized_LDI_NoAg.tif")
+habsuit <- raster("C:/Users/C836876692/Desktop/Omniscape Test/LDI_8_NoAg.tif")
 
 # rescale suitability value to 0-1 (per Keeley et al 2016 except 1- as scale inverse)
 transform_function <- function(x) {
-  newvalues <- 1-(x - 0)/(100-0)
+  newvalues <- 1-(x - 0)/(1881.04418945-0) #min and max values of input raster
   return(newvalues)
 }
 
