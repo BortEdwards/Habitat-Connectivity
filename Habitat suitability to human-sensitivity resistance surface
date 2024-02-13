@@ -1,0 +1,35 @@
+##This script takes a habitat suitability layer and transforms it (per Keeley 2016)
+##into a resistance surface for varying levles of animal/human  tolerance
+##methods adopted in Belote et al 2022 (Belote's transformation equation is slightly different)
+
+# Load the raster package
+library(raster)
+
+# Load existing habitat suitability raster layer
+habsuit <- raster("C:/Users/C836876692/Desktop/Omniscape Test/Normalized_LDI_NoAg.tif")
+
+# rescale suitability value to 0-1 (per Keeley et al 2016 except 1- as scale inverse)
+transform_function <- function(x) {
+  newvalues <- 1-(x - 0)/(100-0)
+  return(newvalues)
+}
+
+# Apply the transformation to the habitat suitability raster
+scaledraster <- calc(habsuit, transform_function)
+
+
+# Define the transformation function for different animal/human interactions
+# per Keeley et al 2016 -8 = human sensitive, 0.25 = human neutral, 8 = human tolerant
+transform_function <- function(x) {
+  newvalues <- 100-99 * ((1 - exp(-0.25 * x)) / (1 - exp(-0.25)))
+  return(newvalues)
+}
+
+# Apply the transformation to the scaled raster
+transraster <- calc(scaledraster, transform_function)
+
+#plot raster
+plot(transraster)
+
+#save the new raster layer to a file
+writeRaster(transraster, "C:/Users/C836876692/Desktop/Omniscape Test/LDI_NoAg_minus0_25HumanNeutral.tif", format = "GTiff", overwrite = TRUE)
