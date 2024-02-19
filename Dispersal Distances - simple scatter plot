@@ -1,0 +1,69 @@
+### Simply plotting dispersal distances
+### Example: mammal data from (Whitnee & Orme, 2012) including multiple values, maxes, mins, means, medians, and sex per species.
+
+library(ggplot2)
+library(Hmisc)
+library(dplyr)
+
+
+data <- read.csv("C:/Users/C836876692/Desktop/Omniscape Test/JustCOMammalsRAnalysisTable.csv")
+
+### Create a bar plot with error bars
+plot <- ggplot(data, aes(x = Species, y = in.Miles)) +
+  geom_bar(stat = "summary", fun = "mean", position = "dodge") +
+  geom_errorbar(stat = "summary", fun.data = "mean_cl_normal", position = "dodge", width = 0.2) +
+  labs(x = "Species", y = "Dispersal Value (in Miles)", title = "Dispersal Values by Species with Variance") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+print(plot)
+
+### plot per species ordered by maximim value
+
+# Convert the "Species" column to a factor with levels ordered by the maximum "in.Miles" within each species
+data$Species <- factor(data$Species, levels = names(sort(tapply(data$in.Miles, data$Species, max))))
+
+# Create a scatter plot with dodge position for each species
+ggplot(data, aes(x = Species, y = in.Miles)) +
+  geom_point(position = position_dodge(width = 0.5)) + # Adjust width as needed
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Species", y = "Dispersal Values (in.Miles)",
+       title = "All Dispersal Values for Colorado Mammals by Species")
+
+### As above but colored by sex
+
+data$Species <- factor(data$Species, levels = names(sort(tapply(data$in.Miles, data$Species, max))))
+
+# Create a scatter plot with dodge position for each species, colored by "sex"
+plot <- ggplot(data, aes(x = Species, y = in.Miles, color = Sex)) +
+  geom_point(position = position_dodge(width = 0.5)) + # Adjust width as needed
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Species", y = "Dispersal Values (in.Miles)",
+       title = "All Dispersal Values for Colorado Mammals by Species") +
+  scale_color_manual(values = c("Female" = "orange", "Male" = "blue"))
+
+plot(plot)
+
+# Save the plot to a file (adjust filename and format as needed)
+setwd("C:/Users/C836876692/Desktop/Omniscape Test")
+ggsave("ColoradoMammalDispersal.png", plot, width = 12, height = 6)
+
+
+### replot using only mean values
+
+data.mean <- data %>% filter(grepl("Mean", Measure))
+
+data.mean $Species <- factor(data.mean$Species, levels = names(sort(tapply(data.mean$in.Miles, data.mean$Species, max))))
+
+# Create a scatter plot with dodge position for each species, colored by "sex"
+plot.mean <- ggplot(data.mean, aes(x = Species, y = in.Miles, color = Sex)) +
+  geom_point(position = position_dodge(width = 0.5)) + # Adjust width as needed
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Species", y = "Dispersal Values (in.Miles)",
+       title = "Mean Dispersal Values for Colorado Mammals by Species") +
+  scale_color_manual(values = c("Female" = "orange", "Male" = "blue"))
+
+plot(plot.mean)
+
+# Save the plot to a file (adjust filename and format as needed)
+setwd("C:/Users/C836876692/Desktop/Omniscape Test")
+ggsave("ColoradoMeanMammalDispersal.png", plot, width = 12, height = 6)
